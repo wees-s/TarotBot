@@ -1,6 +1,4 @@
-import discord
-import os
-import random
+import discord,command,errors
 from discord.ext import commands
 
 intents = discord.Intents.all()
@@ -11,15 +9,21 @@ async def on_ready():
     print("Bot is ready")
 
 @client.command()
+@commands.cooldown(1, 86400, commands.BucketType.user)
 async def daily(ctx):
-    card = random.choice(os.listdir("./cards"))
-    await ctx.send(file=discord.File(f"./cards/{card}"))
+    await command.daily(ctx)
 
 @client.command()
+@commands.cooldown(1, 86400, commands.BucketType.user)
 async def triad(ctx):
-    cards = random.sample(os.listdir("./cards"), 3)    
-    await ctx.send(file=discord.File(f"./cards/{cards[0]}"))
-    await ctx.send(file=discord.File(f"./cards/{cards[1]}"))
-    await ctx.send(file=discord.File(f"./cards/{cards[2]}"))
+    await command.triad(ctx)
 
-client.run("xxxxx")
+@daily.error
+async def daily_error(ctx, error):
+    await errors.daily_error(ctx, error)
+
+@triad.error
+async def triad_error(ctx, error):
+    await errors.triad_error(ctx, error)
+
+client.run("API KEY")
